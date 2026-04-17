@@ -41,22 +41,20 @@
   <canvas id="sparkleCanvas" class="sparkle-canvas" aria-hidden="true"></canvas>
 
   <!-- ============== BACKGROUND MUSIC ==============
-       Starts MUTED so browsers always allow autoplay, then unmutes on the
-       first user interaction. The floating button lets the user pause/resume. -->
-  <audio id="bgMusic" loop autoplay muted preload="auto" playsinline>
+       The script starts the song on the first real user gesture (scroll,
+       click, key, touch). The floating button toggles play / pause. -->
+  <audio id="bgMusic" loop preload="auto" playsinline>
     <source src="happy_anniversary.mp3" type="audio/mpeg" />
   </audio>
 
   <!-- ============== MUSIC TOGGLE BUTTON ============== -->
-  <button class="music-btn is-playing" id="musicBtn" aria-label="Pause music" title="Pause music">
+  <button class="music-btn" id="musicBtn" aria-label="Play music" title="Play music">
     <span class="music-btn__icon" id="musicIcon" aria-hidden="true">
-      <!-- pause icon (default since we autoplay) -->
-      <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-        <rect x="6" y="5" width="4" height="14" rx="1"/>
-        <rect x="14" y="5" width="4" height="14" rx="1"/>
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+        <path d="M8 5v14l11-7z"/>
       </svg>
     </span>
-    <span class="music-btn__label" id="musicLabel">Pause</span>
+    <span class="music-btn__label" id="musicLabel">Play</span>
     <span class="music-btn__waves" aria-hidden="true">
       <span></span><span></span><span></span>
     </span>
