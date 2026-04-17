@@ -130,15 +130,16 @@
     requestAnimationFrame(draw);
   }
 
-  /* ---------- Music: scroll/click/key starts the song, button toggles it ----------
+  /* ---------- Music ----------
+     Browsers only let us start audible <audio> playback inside a real
+     user-activation event: click, pointerdown, keydown, touchend.
+     `scroll` and `wheel` are NOT user activations, so we don't rely on them.
      Strategy:
-       - On the FIRST real user input of any kind (wheel, scroll, click,
-         pointerdown, key, touch) we call audio.play() unmuted. Doing this
-         from inside the input handler counts as a user gesture, so the
-         browser allows audible playback.
-       - We DO NOT remove the gesture listeners until play() ACTUALLY
-         resolves successfully. Otherwise a failed first attempt would leave
-         us with no way to retry. */
+       1. Try to play on init (usually blocked by autoplay policy — fine).
+       2. Show a small one-time "Tap anywhere to play music" hint.
+       3. The first real click / pointerdown / key / touch anywhere on the
+          page calls audio.play() synchronously inside that handler.
+       4. The floating Play / Pause button always toggles, no matter what. */
   function initMusic() {
     const audio = $('#bgMusic');
     const btn   = $('#musicBtn');
@@ -150,21 +151,21 @@
     const ICON_PLAY  = '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
     const ICON_PAUSE = '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>';
 
-    const log = (...args) => console.log('%c[music]', 'color:#e9c87a;font-weight:bold', ...args);
+    const log = (...a) => console.log('%c[music]', 'color:#e9c87a;font-weight:bold', ...a);
 
     audio.loop = true;
     audio.volume = TARGET_VOL;
-    audio.muted = false; // start unmuted; play() may be blocked but that's fine
+    audio.muted = false;
+    audio.preload = 'auto';
 
     let userPaused = false;
     let started   = false;
-    let inFlight  = false;
 
     audio.addEventListener('error', () => console.error('[music] LOAD ERROR', audio.error));
-    audio.addEventListener('loadeddata',  () => log('loaded ✓'));
-    audio.addEventListener('canplay',     () => log('canplay ✓'));
-    audio.addEventListener('playing',     () => log('PLAYING ✓ (muted=' + audio.muted + ', vol=' + audio.volume.toFixed(2) + ')'));
-    audio.addEventListener('pause',       () => log('paused'));
+    audio.addEventListener('loadeddata', () => log('loaded'));
+    audio.addEventListener('canplay',    () => log('canplay'));
+    audio.addEventListener('playing',    () => { started = true; setUI(true); log('PLAYING'); });
+    audio.addEventListener('pause',      () => { setUI(false); log('paused'); });
 
     const setUI = (playing) => {
       if (!btn) return;
@@ -194,57 +195,60 @@
       requestAnimationFrame(step);
     };
 
-    /* Attempt to start audible playback. Returns a promise so callers know
-       whether it actually worked. We only mark `started` and remove the
-       gesture listeners after play() truly resolves. */
-    const startAudible = () => {
-      if (started || userPaused || inFlight) return Promise.resolve(started);
-      inFlight = true;
+    /* play() must be called SYNCHRONOUSLY inside the user-gesture handler,
+       so this helper does no awaiting before calling it. */
+    const tryPlay = () => {
       audio.muted = false;
+      if (audio.volume === 0) audio.volume = TARGET_VOL;
       const p = audio.play();
-      if (!p || !p.then) { inFlight = false; started = true; setUI(true); return Promise.resolve(true); }
-      return p.then(() => {
-        inFlight = false;
-        started = true;
-        log('audible start ✓');
-        setUI(true);
-      }).catch(err => {
-        inFlight = false;
-        log('play blocked:', err && err.name, '— will retry on next user gesture');
-      });
+      if (p && p.then) {
+        p.then(() => log('audible start')).catch(err => log('play blocked:', err && err.name));
+      }
     };
 
-    /* Try once on init (will likely be blocked, that's fine — we'll retry
-       on the first real interaction). */
-    startAudible();
+    /* 1. Optimistic first attempt (will usually be blocked — that's fine). */
+    tryPlay();
 
-    /* These all qualify as user input. We attempt startAudible() each time
-       and only stop listening after success. */
-    const events = ['wheel', 'scroll', 'click', 'pointerdown', 'mousedown',
-                    'touchstart', 'touchmove', 'keydown', 'keyup'];
-    const handleGesture = () => {
-      startAudible().then(() => {
-        if (started) {
-          events.forEach(evt => window.removeEventListener(evt, handleGesture, true));
-        }
-      });
+    /* 2. Any user interaction tries to start the song silently in the
+          background. `pointerdown`/`click`/`keydown`/`touchend` are real
+          user-activation events and will succeed; `scroll`/`wheel` are
+          included as a best-effort and will succeed once the user has also
+          interacted at least once. No on-screen prompt is shown. */
+    const gestureEvents = ['pointerdown', 'click', 'touchend', 'keydown',
+                           'scroll', 'wheel'];
+    const onGesture = () => {
+      if (started || userPaused) {
+        gestureEvents.forEach(e =>
+          window.removeEventListener(e, onGesture, true));
+        return;
+      }
+      tryPlay();
     };
-    events.forEach(evt =>
-      window.addEventListener(evt, handleGesture, { capture: true, passive: true })
+    gestureEvents.forEach(e =>
+      window.addEventListener(e, onGesture, { capture: true, passive: true })
     );
 
-    /* Music button: explicit play / pause toggle. */
+    /* 3. The floating button: explicit toggle. Calls play() SYNCHRONOUSLY
+          on click so the browser counts this as a user gesture even if
+          nothing else has happened yet. */
     if (btn) {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
-        if (audio.paused || !started) {
+        if (audio.paused) {
           userPaused = false;
           audio.muted = false;
-          startAudible();
+          if (audio.volume === 0) audio.volume = TARGET_VOL;
+          const p = audio.play();
+          if (p && p.then) {
+            p.then(() => log('button start')).catch(err => {
+              console.error('[music] button play failed:', err);
+              alert('Your browser blocked audio playback.\nPlease check that the page has permission to play sound.');
+            });
+          }
         } else {
           userPaused = true;
           fadeTo(0, 220);
-          setTimeout(() => { audio.pause(); setUI(false); }, 250);
+          setTimeout(() => { audio.pause(); audio.volume = TARGET_VOL; }, 250);
         }
       });
     }
