@@ -277,10 +277,28 @@ body {
 }
 .hero__bg {
   position: absolute; inset: 0;
-  background-size: cover;
-  background-position: center 25%;
-  background-repeat: no-repeat;
   z-index: -3;
+  overflow: hidden;
+  background: var(--bg-0);
+}
+/* Blurred copy of the photo fills the frame edges so on portrait mobile
+   screens (where we switch to `contain`) the sides never look empty. */
+.hero__bg-blur {
+  position: absolute; inset: -30px;
+  background-image: url('anooj%20sandhya.jpeg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: blur(40px) brightness(0.55) saturate(120%);
+  transform: scale(1.1);
+  z-index: 0;
+}
+.hero__bg-img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: center 25%;
+  z-index: 1;
   animation: kenBurns 22s ease-in-out infinite alternate;
   filter: saturate(108%);
   will-change: transform;
@@ -290,13 +308,22 @@ body {
   100% { transform: scale(1.06) translate(-1%, -1%); }
 }
 
-/* On wider screens the portrait couple photo can crop too tight — let it
-   breathe by anchoring near the top so faces stay visible. */
 @media (min-width: 900px) {
-  .hero__bg { background-position: center 20%; }
+  .hero__bg-img { object-position: center 20%; }
 }
 @media (min-width: 1400px) {
-  .hero__bg { background-position: center 15%; }
+  .hero__bg-img { object-position: center 15%; }
+}
+
+/* MOBILE: show the FULL couple photo so neither face gets cropped. The
+   blurred backdrop fills the empty space beautifully. */
+@media (max-width: 768px) {
+  .hero__bg-img {
+    object-fit: contain;
+    object-position: center 35%;
+    animation: none;
+    filter: drop-shadow(0 12px 30px rgba(0,0,0,0.5));
+  }
 }
 .hero__overlay {
   position: absolute; inset: 0; z-index: -2;
@@ -328,15 +355,26 @@ body {
 .hero__title {
   font-family: 'Playfair Display', serif;
   font-weight: 700;
-  font-size: clamp(2.5rem, 7vw, 5.5rem);
+  font-size: clamp(2rem, 7vw, 5.5rem);
   margin: 0 0 14px;
-  line-height: 1.05;
+  line-height: 1.08;
   letter-spacing: 0.5px;
+  text-shadow: 0 0 60px rgba(255, 200, 150, 0.12);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.hero__title-text {
   background: linear-gradient(180deg, #fff 0%, #ffe9d6 60%, var(--gold-2) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  text-shadow: 0 0 60px rgba(255, 200, 150, 0.12);
+}
+.hero__title .heart-emoji {
+  font-size: 0.85em;
+  -webkit-text-fill-color: var(--pink-2);
 }
 .heart-emoji {
   display: inline-block;
@@ -1074,10 +1112,13 @@ body {
   .section__head { margin-bottom: 40px; }
   .section__lead { font-size: 0.95rem; }
 
-  .hero { padding: 90px 18px 70px; }
-  .hero__eyebrow { letter-spacing: 4px; font-size: 11px; }
-  .hero__eyebrow::before, .hero__eyebrow::after { width: 24px; }
-  .hero__sub { letter-spacing: 1px; }
+  .hero { padding: 100px 18px 80px; min-height: 100svh; }
+  .hero__eyebrow { letter-spacing: 4px; font-size: 10px; margin-bottom: 14px; }
+  .hero__eyebrow::before, .hero__eyebrow::after { width: 20px; }
+  .hero__title { gap: 8px; line-height: 1.1; margin-bottom: 10px; }
+  .hero__title .heart-emoji { font-size: 0.7em; }
+  .hero__names { margin-bottom: 12px; }
+  .hero__sub { letter-spacing: 1px; font-size: 0.9rem; margin-bottom: 28px; }
   .hero__cta { padding: 12px 22px; font-size: 12px; letter-spacing: 1.5px; }
   .scroll-indicator { display: none; }
 
