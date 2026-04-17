@@ -172,7 +172,6 @@
       if (!btn) return;
       if (playing) {
         btn.classList.add('is-playing');
-        btn.classList.remove('needs-tap');
         btn.setAttribute('aria-label', 'Pause music');
         btn.title = 'Pause music';
         if (icon)  icon.innerHTML  = ICON_PAUSE;
@@ -227,23 +226,26 @@
     audio.addEventListener('canplay',    tryPlaySilent);
     audio.addEventListener('loadeddata', tryPlaySilent, { once: true });
 
-    // Real user gestures only — these are the ones browsers count
-    // as "user activation" for unmuting / autoplay-with-sound.
-    const gestureEvents = ['pointerdown', 'click', 'touchstart', 'keydown'];
+    // Real user gestures that browsers count as "user activation" — the
+    // wheel event (which fires whenever the user scrolls with mouse wheel
+    // or trackpad) IS a recognised gesture, even though `scroll` alone is
+    // not. So scrolling reliably unmutes audio across Chrome/Edge/Firefox.
+    const gestureEvents = ['wheel', 'pointerdown', 'click', 'touchstart', 'touchmove', 'keydown'];
     const onFirstGesture = () => {
       goAudible();
       if (audible) {
         gestureEvents.forEach(evt => window.removeEventListener(evt, onFirstGesture, true));
+        window.removeEventListener('scroll', onFirstGesture, true);
       }
     };
     gestureEvents.forEach(evt =>
       window.addEventListener(evt, onFirstGesture, { capture: true, passive: true })
     );
+    // Keyboard scrolling (arrow keys / space / page-down) and programmatic
+    // scrolls also fire `scroll` — try here too as a belt-and-braces.
+    window.addEventListener('scroll', onFirstGesture, { capture: true, passive: true });
 
     if (btn) {
-      // Subtle pulsing glow until song actually becomes audible
-      btn.classList.add('needs-tap');
-
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         if (audio.paused || audio.muted) {
@@ -251,7 +253,7 @@
           audio.muted = false;
           if (audio.volume < 0.05) audio.volume = 0;
           const p = audio.play();
-          const after = () => { audible = true; fadeTo(TARGET_VOL, 500); setUI(true); btn.classList.remove('needs-tap'); };
+          const after = () => { audible = true; fadeTo(TARGET_VOL, 500); setUI(true); };
           if (p && p.then) p.then(after).catch(err => console.warn('[music] play failed:', err));
           else after();
         } else {
