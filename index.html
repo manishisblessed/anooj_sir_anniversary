@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0b0b14" />
+  <title>Happy Anniversary — Anoj Sir & Sandhya Ma'am</title>
+  <meta name="description" content="A heartfelt anniversary tribute for Anoj Sir & Sandhya Ma'am — celebrating love, family & inspiration." />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Poppins:wght@300;400;500;600;700&family=Great+Vibes&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- AOS animations -->
+  <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet" />
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- ============== PRELOADER ============== -->
+  <div class="preloader" id="preloader" aria-hidden="true">
+    <div class="preloader__inner">
+      <div class="heart-pulse">
+        <svg viewBox="0 0 32 29.6" xmlns="http://www.w3.org/2000/svg">
+          <path d="M23.6,0c-2.9,0-5.6,1.7-7.6,4.4C14,1.7,11.3,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,16,21.2,16,21.2 s16-11.8,16-21.2C32,3.8,28.2,0,23.6,0z"/>
+        </svg>
+      </div>
+      <p class="preloader__text">Loading a little love...</p>
+    </div>
+  </div>
+
+  <!-- ============== FLOATING HEARTS LAYER ============== -->
+  <div class="floating-hearts" id="floatingHearts" aria-hidden="true"></div>
+
+  <!-- ============== SPARKLES LAYER ============== -->
+  <canvas id="sparkleCanvas" class="sparkle-canvas" aria-hidden="true"></canvas>
+
+  <!-- ============== BACKGROUND MUSIC (auto-play, looped, locked) ============== -->
+  <audio id="bgMusic" loop autoplay preload="auto" playsinline>
+    <source src="happy_anniversary.mpeg" type="audio/mpeg" />
+  </audio>
+
+  <!-- ============== NAV ============== -->
+  <nav class="nav" id="nav">
+    <a href="#hero" class="nav__brand">
+      <span class="nav__brand-mark">A &amp; S</span>
+      <span class="nav__brand-sub">Forever</span>
+    </a>
+    <ul class="nav__links">
+      <li><a href="#story">Our Story</a></li>
+      <li><a href="#family">Family</a></li>
+      <li><a href="#gallery">Memories</a></li>
+      <li><a href="#message">Message</a></li>
+      <li><a href="#visit">Visit</a></li>
+    </ul>
+  </nav>
+
+  <!-- ============== 1. HERO ============== -->
+  <header class="hero" id="hero">
+    <div class="hero__bg" style="background-image:url('anooj%20sandhya.jpeg');"></div>
+    <div class="hero__overlay"></div>
+    <div class="hero__vignette"></div>
+
+    <div class="hero__content">
+      <p class="hero__eyebrow" data-aos="fade-down" data-aos-delay="200">A Special Day · Celebrating You Two</p>
+      <h1 class="hero__title" data-aos="fade-up" data-aos-delay="350">
+        Happy Anniversary <span class="heart-emoji">❤</span>
+      </h1>
+      <h2 class="hero__names" data-aos="fade-up" data-aos-delay="600">
+        Anoj Sir <span class="amp">&amp;</span> Sandhya Ma'am
+      </h2>
+      <p class="hero__sub" data-aos="fade-up" data-aos-delay="850">
+        Celebrating Love, Family &amp; Inspiration
+      </p>
+
+      <a href="#story" class="hero__cta" data-aos="fade-up" data-aos-delay="1100">
+        <span>Begin the Journey</span>
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+      </a>
+    </div>
+
+    <div class="scroll-indicator" aria-hidden="true">
+      <span class="scroll-indicator__dot"></span>
+    </div>
+  </header>
+
+  <!-- ============== 2. LOVE STORY / TIMELINE ============== -->
+  <section class="section story" id="story">
+    <div class="section__head" data-aos="fade-up">
+      <p class="section__eyebrow">Our Beautiful Journey</p>
+      <h2 class="section__title">A Love Story <em>Worth Telling</em></h2>
+      <p class="section__lead">
+        Years of laughter, dreams shared, and a family built on love — every chapter more beautiful than the last.
+      </p>
+    </div>
+
+    <div class="timeline">
+      <div class="timeline__line" aria-hidden="true"></div>
+
+      <div class="timeline__item left" data-aos="fade-right">
+        <div class="timeline__card glass">
+          <div class="timeline__img">
+            <img src="anooj%20sandhya.jpeg" alt="Anoj and Sandhya together" loading="lazy" />
+          </div>
+          <div class="timeline__body">
+            <span class="timeline__year">The Beginning</span>
+            <h3>Two Hearts, One Promise</h3>
+            <p>Where it all started — a bond stitched with trust, patience, and quiet smiles.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline__item right" data-aos="fade-left">
+        <div class="timeline__card glass">
+          <div class="timeline__img">
+            <img src="sandhya%20anaya.jpeg" alt="Sandhya with Anaya" loading="lazy" />
+          </div>
+          <div class="timeline__body">
+            <span class="timeline__year">Jan 2021</span>
+            <h3>A Little Princess Arrived</h3>
+            <p>Anaya — your sunshine, your softness, your forever little girl.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline__item left" data-aos="fade-right">
+        <div class="timeline__card glass">
+          <div class="timeline__img">
+            <img src="ayansh.jpeg" alt="Little Ayansh" loading="lazy" />
+          </div>
+          <div class="timeline__body">
+            <span class="timeline__year">Sep 2022</span>
+            <h3>And Then Came Ayansh</h3>
+            <p>The little prince who completed the picture. Mischief, hugs, and pure joy.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline__item right" data-aos="fade-left">
+        <div class="timeline__card glass">
+          <div class="timeline__img">
+            <img src="all%20family%20photo.jpeg" alt="The whole family together" loading="lazy" />
+          </div>
+          <div class="timeline__body">
+            <span class="timeline__year">Today</span>
+            <h3>Family of Four</h3>
+            <p>A home full of warmth, lessons, and the kind of love that grows quietly every day.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline__item left" data-aos="fade-right">
+        <div class="timeline__card glass">
+          <div class="timeline__img">
+            <img src="last%20anniversary%20family%20photo.jpeg" alt="Last anniversary family photo" loading="lazy" />
+          </div>
+          <div class="timeline__body">
+            <span class="timeline__year">Last Anniversary</span>
+            <h3>Another Year, Another Memory</h3>
+            <p>A celebration of how far you've come — together, always.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== 3. FAMILY ============== -->
+  <section class="section family" id="family">
+    <div class="section__head" data-aos="fade-up">
+      <p class="section__eyebrow">The People Who Make a Home</p>
+      <h2 class="section__title">Meet the <em>Dixit Family</em></h2>
+      <p class="section__lead">Four hearts. One home. Endless love.</p>
+    </div>
+
+    <div class="family-grid">
+      <article class="member glass" data-aos="zoom-in" data-aos-delay="0">
+        <div class="member__img-wrap">
+          <img src="anooj%20anaya.jpeg" alt="Anoj Sir" loading="lazy" />
+        </div>
+        <div class="member__body">
+          <h3 class="member__name">Anoj Sir</h3>
+          <p class="member__role">The Mentor · The Pillar</p>
+          <p class="member__quote">"A teacher by profession, a guide by heart."</p>
+        </div>
+      </article>
+
+      <article class="member glass" data-aos="zoom-in" data-aos-delay="120">
+        <div class="member__img-wrap">
+          <img src="sandhya%20anaya.jpeg" alt="Sandhya Ma'am" loading="lazy" />
+        </div>
+        <div class="member__body">
+          <h3 class="member__name">Sandhya Ma'am</h3>
+          <p class="member__role">The Heart of the Home</p>
+          <p class="member__quote">"Grace, warmth, and the softest kind of strength."</p>
+        </div>
+      </article>
+
+      <article class="member glass" data-aos="zoom-in" data-aos-delay="240">
+        <div class="member__img-wrap">
+          <img src="anaya.jpeg" alt="Anaya" loading="lazy" />
+        </div>
+        <div class="member__body">
+          <h3 class="member__name">Anaya</h3>
+          <p class="member__role">The Little Princess</p>
+          <p class="member__quote">"All giggles, hair bows, and tiny adventures."</p>
+        </div>
+      </article>
+
+      <article class="member glass" data-aos="zoom-in" data-aos-delay="360">
+        <div class="member__img-wrap">
+          <img src="ayansh.jpeg" alt="Ayansh" loading="lazy" />
+        </div>
+        <div class="member__body">
+          <h3 class="member__name">Ayansh</h3>
+          <p class="member__role">The Little Champion</p>
+          <p class="member__quote">"A bundle of mischief and a heart full of sunshine."</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============== 4. MEMORIES GALLERY ============== -->
+  <section class="section gallery" id="gallery">
+    <div class="section__head" data-aos="fade-up">
+      <p class="section__eyebrow">Frozen Moments</p>
+      <h2 class="section__title">Memories <em>We Cherish</em></h2>
+      <p class="section__lead">Click any photo to relive it up close.</p>
+    </div>
+
+    <div class="masonry" id="masonry">
+      <div class="masonry__item" data-aos="fade-up"><img src="all%20family%20photo.jpeg" alt="Whole family together" loading="lazy" /></div>
+      <div class="masonry__item" data-aos="fade-up" data-aos-delay="60"><img src="last%20anniversary%20family%20photo.jpeg" alt="Last anniversary family" loading="lazy" /></div>
+      <div class="masonry__item" data-aos="fade-up" data-aos-delay="120"><img src="last%20anniversary%20photo.jpeg" alt="Last anniversary moment" loading="lazy" /></div>
+      <div class="masonry__item" data-aos="fade-up" data-aos-delay="180"><img src="last%20anniversary%20photo%202.jpeg" alt="Last anniversary candid" loading="lazy" /></div>
+      <div class="masonry__item" data-aos="fade-up" data-aos-delay="60"><img src="last%20anniversary%20photo%203.jpeg" alt="Anniversary celebration" loading="lazy" /></div>
+      <div class="masonry__item" data-aos="fade-up" data-aos-delay="120"><img src="last%20anniversary%20photo%204.jpeg" alt="Anniversary smiles" loading="lazy" /></div>
+      <div class="masonry__item" data-aos="fade-up"><img src="anooj%20sandhya.jpeg" alt="Anoj and Sandhya" loading="lazy" /></div>
+      <div class="masonry__item" data-aos="fade-up" data-aos-delay="60"><img src="anooj%20anaya.jpeg" alt="Anoj with Anaya" loading="lazy" /></div>
+      <div class="masonry__item" data-aos="fade-up" data-aos-delay="120"><img src="sandhya%20ayansh%20anaya.jpeg" alt="Sandhya with kids" loading="lazy" /></div>
+      <div class="masonry__item" data-aos="fade-up" data-aos-delay="180"><img src="sandhya%20ayansh%20anaya%202.jpeg" alt="Sandhya with kids" loading="lazy" /></div>
+      <div class="masonry__item" data-aos="fade-up"><img src="anaya%20ayansh.jpeg" alt="Anaya and Ayansh" loading="lazy" /></div>
+      <div class="masonry__item" data-aos="fade-up" data-aos-delay="60"><img src="anaya.jpeg" alt="Anaya" loading="lazy" /></div>
+      <div class="masonry__item" data-aos="fade-up" data-aos-delay="120"><img src="anaya%202.jpeg" alt="Anaya smiling" loading="lazy" /></div>
+      <div class="masonry__item" data-aos="fade-up" data-aos-delay="180"><img src="anaya%20car%20window.jpeg" alt="Anaya by the car window" loading="lazy" /></div>
+      <div class="masonry__item" data-aos="fade-up"><img src="ayansh.jpeg" alt="Ayansh" loading="lazy" /></div>
+      <div class="masonry__item" data-aos="fade-up" data-aos-delay="60"><img src="ayansh%202.jpeg" alt="Ayansh playing" loading="lazy" /></div>
+      <div class="masonry__item" data-aos="fade-up" data-aos-delay="120"><img src="sandhya%20anaya.jpeg" alt="Sandhya with Anaya" loading="lazy" /></div>
+    </div>
+  </section>
+
+  <!-- ============== LIGHTBOX ============== -->
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-hidden="true">
+    <button class="lightbox__close" id="lbClose" aria-label="Close">&times;</button>
+    <button class="lightbox__nav lightbox__nav--prev" id="lbPrev" aria-label="Previous">&#10094;</button>
+    <img class="lightbox__img" id="lbImg" alt="" />
+    <button class="lightbox__nav lightbox__nav--next" id="lbNext" aria-label="Next">&#10095;</button>
+  </div>
+
+  <!-- ============== 5. SPECIAL MESSAGE ============== -->
+  <section class="section message" id="message">
+    <div class="message__bg" aria-hidden="true"></div>
+
+    <div class="message__card glass" data-aos="zoom-in">
+      <div class="message__quote-mark" aria-hidden="true">&ldquo;</div>
+
+      <h2 class="message__title">A Heartfelt Note</h2>
+
+      <div class="message__body">
+        <p class="message__line message__greeting">Dear Anoj Sir,</p>
+        <div class="typed-wrap">
+          <p class="typed" id="typedText" aria-hidden="true"></p>
+          <p class="typed-fallback sr-only" id="typedFallback">
+            Aap sirf teacher nahi ho, aap meri life ke guide, mentor aur ek strong support ho. Aaj jo bhi hu, usme aapka bohot bada role hai. Aap dono ki jodi hamesha aise hi khush rahe. Happy Anniversary once again!
+          </p>
+        </div>
+        <p class="message__sign">— Manish</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== QR CODE / VISIT SITE ============== -->
+  <section class="section qr" id="visit">
+    <div class="qr__card glass" data-aos="zoom-in">
+      <div class="qr__left">
+        <p class="section__eyebrow" style="margin:0 0 10px;">A Little Surprise</p>
+        <h2 class="qr__title">Visit Your <em>Special Page</em></h2>
+        <p class="qr__lead">
+          Scan this QR with your phone camera to open a heartfelt anniversary
+          page made just for you both.
+        </p>
+        <a class="qr__link" href="https://sandhyanooj.life" target="_blank" rel="noopener">
+          <span>sandhyanooj.life</span>
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg>
+        </a>
+        <p class="qr__hint">Happy Anniversary, Anoj Sir &amp; Sandhya Ma'am ❤</p>
+      </div>
+
+      <div class="qr__right">
+        <div class="qr__frame">
+          <div id="qrcode" class="qr__code" aria-label="QR code linking to sandhyanooj.life"></div>
+          <div class="qr__brand">
+            <span>A &amp; S</span>
+            <small>Forever</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== 6. ENDING ============== -->
+  <section class="section ending" id="ending">
+    <div class="ending__inner" data-aos="zoom-in">
+      <h2 class="ending__title">Forever Together <span class="heart-emoji pink">💖</span></h2>
+      <p class="ending__sub">May every year ahead be brighter, softer, and even more beautiful than the last.</p>
+      <button class="ending__btn" id="celebrateBtn">
+        <span>Celebrate 🎉</span>
+      </button>
+    </div>
+
+    <footer class="footer">
+      <p>Made with <span class="heart-emoji">❤</span> by <strong>Manish</strong> · For Anoj Sir &amp; Sandhya Ma'am</p>
+    </footer>
+  </section>
+
+  <!-- ============== SCRIPTS ============== -->
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
