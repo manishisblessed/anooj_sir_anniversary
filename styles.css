@@ -573,10 +573,21 @@ body {
   border: 1px solid var(--border-glass);
   transition: transform 0.5s var(--ease), border-color 0.5s var(--ease), box-shadow 0.5s var(--ease);
   background: var(--bg-2);
+  /* Cap any single tile so one tall portrait can't blow up column heights
+     and leave huge blank gaps in the masonry layout. */
+  max-height: 420px;
 }
 .masonry__item img {
-  width: 100%; height: auto; display: block;
+  width: 100%;
+  height: auto;
+  max-height: 420px;
+  object-fit: cover;
+  object-position: center 25%;
+  display: block;
   transition: transform 0.8s var(--ease), filter 0.6s var(--ease);
+}
+@media (max-width: 700px) {
+  .masonry__item, .masonry__item img { max-height: 360px; }
 }
 .masonry__item::after {
   content: '';
