@@ -460,13 +460,33 @@ body {
 .timeline__img {
   aspect-ratio: 5/4;
   overflow: hidden;
-  background: var(--bg-3);
+  background: linear-gradient(135deg, #110b1a, #1a1230);
+  position: relative;
+  isolation: isolate;
+}
+/* Blurred copy of the same photo fills the frame so we never crop people
+   out, regardless of the photo's aspect ratio. The real photo sits on top
+   in `contain` mode so it's always shown in full. */
+.timeline__img::before {
+  content: '';
+  position: absolute;
+  inset: -24px;
+  background-image: var(--src);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: blur(32px) brightness(0.55) saturate(125%);
+  z-index: -1;
+  transform: scale(1.05);
 }
 .timeline__img img {
   width: 100%; height: 100%;
-  object-fit: cover;
-  object-position: center 22%;
+  object-fit: contain;
+  object-position: center;
+  position: relative;
+  z-index: 1;
   transition: transform 0.8s var(--ease);
+  filter: drop-shadow(0 8px 24px rgba(0,0,0,0.55));
 }
 .timeline__card:hover .timeline__img img { transform: scale(1.06); }
 .timeline__body { padding: 22px 24px 26px; }
@@ -519,17 +539,35 @@ body {
   aspect-ratio: 4/5;
   overflow: hidden;
   position: relative;
+  isolation: isolate;
+  background: linear-gradient(135deg, #110b1a, #1a1230);
+}
+.member__img-wrap::before {
+  content: '';
+  position: absolute; inset: -20px;
+  background-image: var(--src);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: blur(28px) brightness(0.55) saturate(120%);
+  z-index: 0;
+  transform: scale(1.05);
 }
 .member__img-wrap::after {
   content: '';
   position: absolute; inset: 0;
-  background: linear-gradient(180deg, transparent 50%, rgba(7,6,13,0.85) 100%);
+  background: linear-gradient(180deg, transparent 55%, rgba(7,6,13,0.92) 100%);
   pointer-events: none;
+  z-index: 2;
 }
 .member__img-wrap img {
-  width: 100%; height: 100%; object-fit: cover;
-  object-position: center 18%;
+  width: 100%; height: 100%;
+  object-fit: contain;
+  object-position: center;
+  position: relative;
+  z-index: 1;
   transition: transform 0.9s var(--ease), filter 0.6s var(--ease);
+  filter: drop-shadow(0 8px 22px rgba(0,0,0,0.55));
 }
 .member:hover .member__img-wrap img { transform: scale(1.08); filter: brightness(1.05); }
 
@@ -572,22 +610,33 @@ body {
   cursor: zoom-in;
   border: 1px solid var(--border-glass);
   transition: transform 0.5s var(--ease), border-color 0.5s var(--ease), box-shadow 0.5s var(--ease);
-  background: var(--bg-2);
-  /* Cap any single tile so one tall portrait can't blow up column heights
-     and leave huge blank gaps in the masonry layout. */
-  max-height: 420px;
+  background: linear-gradient(135deg, #110b1a, #1a1230);
+  isolation: isolate;
+  aspect-ratio: 4/5;
+}
+.masonry__item--wide { aspect-ratio: 4/3; }
+.masonry__item--square { aspect-ratio: 1/1; }
+
+.masonry__item::before {
+  content: '';
+  position: absolute; inset: -20px;
+  background-image: var(--src);
+  background-size: cover;
+  background-position: center;
+  filter: blur(28px) brightness(0.5) saturate(125%);
+  z-index: 0;
+  transform: scale(1.05);
 }
 .masonry__item img {
+  position: relative;
+  z-index: 1;
   width: 100%;
-  height: auto;
-  max-height: 420px;
-  object-fit: cover;
-  object-position: center 25%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
   display: block;
+  filter: drop-shadow(0 6px 20px rgba(0,0,0,0.55));
   transition: transform 0.8s var(--ease), filter 0.6s var(--ease);
-}
-@media (max-width: 700px) {
-  .masonry__item, .masonry__item img { max-height: 360px; }
 }
 .masonry__item::after {
   content: '';
@@ -947,6 +996,86 @@ body {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+}
+
+/* ============================================
+   RESPONSIVE FINE-TUNING
+   ============================================ */
+
+/* Tablet */
+@media (max-width: 980px) {
+  .section { padding: 90px 24px; }
+  .section__head { margin-bottom: 50px; }
+  .qr { padding: 80px 24px; }
+  .message { padding: 100px 22px; }
+  .ending { padding: 110px 22px 40px; }
+  .timeline__card { border-radius: var(--radius-md); }
+}
+
+/* Phones */
+@media (max-width: 640px) {
+  body { line-height: 1.55; }
+
+  .section { padding: 70px 18px; }
+  .section__head { margin-bottom: 40px; }
+  .section__lead { font-size: 0.95rem; }
+
+  .hero { padding: 90px 18px 70px; }
+  .hero__eyebrow { letter-spacing: 4px; font-size: 11px; }
+  .hero__eyebrow::before, .hero__eyebrow::after { width: 24px; }
+  .hero__sub { letter-spacing: 1px; }
+  .hero__cta { padding: 12px 22px; font-size: 12px; letter-spacing: 1.5px; }
+  .scroll-indicator { display: none; }
+
+  .timeline { padding: 0; }
+  .timeline__body { padding: 18px 18px 22px; }
+  .timeline__body h3 { font-size: 1.2rem; }
+  .timeline__body p  { font-size: 0.9rem; }
+
+  .family-grid { gap: 16px; }
+  .member__body { padding: 16px 16px 20px; }
+  .member__name { font-size: 1.25rem; }
+
+  .masonry { column-gap: 12px; }
+  .masonry__item { margin-bottom: 12px; border-radius: 14px; }
+
+  .message { padding: 80px 18px; }
+  .message__card { padding: 44px 22px; border-radius: 24px; }
+  .message__title { margin-bottom: 22px; }
+
+  .qr { padding: 70px 18px; }
+  .qr__card { padding: 36px 22px; gap: 28px; border-radius: 24px; }
+  .qr__frame { padding: 18px 18px 50px; }
+  .qr__code { width: 180px; height: 180px; }
+
+  .ending { padding: 90px 18px 30px; }
+  .ending__sub { font-size: 0.95rem; margin-bottom: 28px; }
+  .ending__btn { padding: 14px 26px; font-size: 12px; letter-spacing: 1.5px; }
+
+  .footer { margin-top: 60px; padding: 22px 14px; font-size: 12px; }
+
+  .lightbox__close { top: 16px; right: 16px; width: 42px; height: 42px; font-size: 24px; }
+}
+
+/* Small phones */
+@media (max-width: 380px) {
+  .nav { padding: 12px 14px; }
+  .nav__brand-mark { font-size: 18px; }
+  .section { padding: 60px 14px; }
+  .timeline__body h3 { font-size: 1.1rem; }
+  .qr__code { width: 160px; height: 160px; }
+}
+
+/* Large desktops — widen container slightly */
+@media (min-width: 1500px) {
+  :root { --maxw: 1320px; }
+}
+
+/* Touch devices: disable hover-driven scale to avoid sticky-hover */
+@media (hover: none) {
+  .timeline__card:hover,
+  .member:hover,
+  .masonry__item:hover { transform: none; }
 }
 
 /* ============================================
