@@ -131,7 +131,7 @@
   }
 
   /* ---------- Locked auto-play music ----------
-     Plays happy_anniversary.mpeg on load, loops forever, no UI controls.
+     Plays happy_anniversary.mp3 on load, loops forever, no UI controls.
      Browsers block autoplay until first user interaction, so we attach a
      one-shot fallback that starts it on the very first click/scroll/key/touch. */
   function initMusic() {
@@ -142,21 +142,30 @@
     audio.loop = true;
     audio.muted = false;
 
-    const tryPlay = () => audio.play().catch(() => {});
+    audio.addEventListener('error', () => {
+      console.warn('[music] Failed to load audio source. Make sure happy_anniversary.mp3 is next to index.html.');
+    });
+    audio.addEventListener('canplay', () => {
+      audio.play().catch(() => {});
+    });
+
+    const tryPlay = () =>
+      audio.play().catch(err => {
+        if (err && err.name !== 'NotAllowedError') console.warn('[music]', err);
+      });
 
     tryPlay();
 
+    const events = ['pointerdown', 'click', 'touchstart', 'keydown', 'scroll', 'mousemove', 'wheel'];
     const startOnInteract = () => {
       tryPlay();
-      ['click', 'touchstart', 'keydown', 'scroll', 'mousemove'].forEach(evt =>
-        window.removeEventListener(evt, startOnInteract, true)
-      );
+      events.forEach(evt => window.removeEventListener(evt, startOnInteract, true));
     };
-    ['click', 'touchstart', 'keydown', 'scroll', 'mousemove'].forEach(evt =>
-      window.addEventListener(evt, startOnInteract, { capture: true, once: false, passive: true })
+    events.forEach(evt =>
+      window.addEventListener(evt, startOnInteract, { capture: true, passive: true })
     );
 
-    // Resume if it ever pauses (defensive — keep it playing always)
+    // Defensive: keep it playing always
     audio.addEventListener('pause', () => {
       setTimeout(() => { if (audio.paused) tryPlay(); }, 200);
     });

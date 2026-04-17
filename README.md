@@ -26,7 +26,7 @@ anooj_sir_anniversary/
 ├── index.html                       # All sections + QR + audio
 ├── styles.css                       # Premium theme, glass cards, timeline, masonry, QR card
 ├── script.js                        # AOS, locked autoplay music, hearts, sparkles, lightbox, typing, QR, confetti
-├── happy_anniversary.mpeg           # Background soundtrack (auto-plays, looped, no controls)
+├── happy_anniversary.mp3            # Background soundtrack (auto-plays, looped, no controls)
 ├── details.txt                      # Family details (provided)
 ├── .gitignore
 ├── README.md
@@ -68,12 +68,12 @@ anooj_sir_anniversary/
 
 ## Background Music
 
-The page plays `happy_anniversary.mpeg` automatically on load — looped, with **no UI controls** (no play/pause).
+The page plays `happy_anniversary.mp3` automatically on load — looped, with **no UI controls** (no play/pause).
 
 > ⚠ Browsers block autoplay until the user interacts with the page once.
 > The script handles this gracefully: it tries autoplay first, and if blocked, automatically starts the song on the **first scroll, click, key press, or touch**. The audio element itself is invisible.
 
-To replace the music, just swap the file `happy_anniversary.mpeg` with another MP3 of the same name (or update the `<source>` in `index.html`).
+To replace the music, just swap the file `happy_anniversary.mp3` with another MP3 of the same name (or update the `<source>` in `index.html`).
 
 ---
 
@@ -150,7 +150,7 @@ git push -u origin main
 
 ## Customization
 
-- **Replace music**: drop a new MP3 named `happy_anniversary.mpeg` (or update the `<source>` in `index.html`).
+- **Replace music**: drop a new MP3 named `happy_anniversary.mp3` (or update the `<source>` in `index.html`).
 - **Edit message**: update the `lines` array inside `initTyping()` in `script.js`.
 - **Edit timeline / family text**: just edit the relevant blocks in `index.html`.
 - **Change accents**: tweak `--gold`, `--pink`, etc. in `:root` of `styles.css`.
