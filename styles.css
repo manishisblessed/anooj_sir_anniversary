@@ -224,14 +224,25 @@ body {
 .hero__bg {
   position: absolute; inset: 0;
   background-size: cover;
-  background-position: center;
+  background-position: center 25%;
+  background-repeat: no-repeat;
   z-index: -3;
-  animation: kenBurns 18s ease-in-out infinite alternate;
-  filter: saturate(110%);
+  animation: kenBurns 22s ease-in-out infinite alternate;
+  filter: saturate(108%);
+  will-change: transform;
 }
 @keyframes kenBurns {
-  0%   { transform: scale(1.05) translate(0, 0); }
-  100% { transform: scale(1.18) translate(-2%, -2%); }
+  0%   { transform: scale(1) translate(0, 0); }
+  100% { transform: scale(1.06) translate(-1%, -1%); }
+}
+
+/* On wider screens the portrait couple photo can crop too tight — let it
+   breathe by anchoring near the top so faces stay visible. */
+@media (min-width: 900px) {
+  .hero__bg { background-position: center 20%; }
+}
+@media (min-width: 1400px) {
+  .hero__bg { background-position: center 15%; }
 }
 .hero__overlay {
   position: absolute; inset: 0; z-index: -2;
