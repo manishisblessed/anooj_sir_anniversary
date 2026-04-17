@@ -40,8 +40,10 @@
   <!-- ============== SPARKLES LAYER ============== -->
   <canvas id="sparkleCanvas" class="sparkle-canvas" aria-hidden="true"></canvas>
 
-  <!-- ============== BACKGROUND MUSIC (auto-play, looped, locked) ============== -->
-  <audio id="bgMusic" loop autoplay preload="auto" playsinline>
+  <!-- ============== BACKGROUND MUSIC (auto-play, looped, locked) ==============
+       Starts MUTED so browsers always allow autoplay; the script unmutes on
+       the very first user interaction (mousemove / scroll / click / key / touch). -->
+  <audio id="bgMusic" loop autoplay muted preload="auto" playsinline>
     <source src="happy_anniversary.mp3" type="audio/mpeg" />
   </audio>
 

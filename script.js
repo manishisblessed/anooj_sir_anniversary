@@ -131,38 +131,62 @@
   }
 
   /* ---------- Locked auto-play music ----------
-     Plays happy_anniversary.mp3 on load, loops forever, no UI controls.
-     Browsers block autoplay until first user interaction, so we attach a
-     one-shot fallback that starts it on the very first click/scroll/key/touch. */
+     Strategy:
+       1. Audio element has `autoplay muted` so the browser ALWAYS starts it
+          silently the moment the page loads (muted autoplay is universally
+          allowed under every browser's autoplay policy).
+       2. The very first time the user interacts with the page (mousemove,
+          scroll, click, key, touch, wheel) we unmute it and ramp the volume
+          up smoothly. To them it feels like the song started right away.
+       3. Defensive resume: if anything pauses it, we restart. */
   function initMusic() {
     const audio = $('#bgMusic');
     if (!audio) return;
 
-    audio.volume = 0.55;
     audio.loop = true;
-    audio.muted = false;
+    audio.volume = 0.55;
+    audio.muted = true; // ensure muted before first play
 
     audio.addEventListener('error', () => {
       console.warn('[music] Failed to load audio source. Make sure happy_anniversary.mp3 is next to index.html.');
     });
-    audio.addEventListener('canplay', () => {
-      audio.play().catch(() => {});
-    });
 
-    const tryPlay = () =>
-      audio.play().catch(err => {
-        if (err && err.name !== 'NotAllowedError') console.warn('[music]', err);
-      });
+    const tryPlay = () => {
+      const p = audio.play();
+      if (p && typeof p.catch === 'function') {
+        p.catch(err => {
+          if (err && err.name !== 'NotAllowedError') console.warn('[music]', err);
+        });
+      }
+    };
 
     tryPlay();
+    audio.addEventListener('canplay', tryPlay, { once: false });
+    audio.addEventListener('loadeddata', tryPlay, { once: true });
 
-    const events = ['pointerdown', 'click', 'touchstart', 'keydown', 'scroll', 'mousemove', 'wheel'];
-    const startOnInteract = () => {
-      tryPlay();
-      events.forEach(evt => window.removeEventListener(evt, startOnInteract, true));
+    let unmuted = false;
+    const fadeIn = (target = 0.55, ms = 1200) => {
+      audio.muted = false;
+      audio.volume = 0;
+      const start = performance.now();
+      const step = (now) => {
+        const t = Math.min(1, (now - start) / ms);
+        audio.volume = Math.min(target, t * target);
+        if (t < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
     };
+
+    const handleFirstInteract = () => {
+      if (unmuted) return;
+      unmuted = true;
+      tryPlay();
+      fadeIn(0.55, 1200);
+      events.forEach(evt => window.removeEventListener(evt, handleFirstInteract, true));
+    };
+    const events = ['pointerdown', 'click', 'touchstart', 'keydown', 'scroll', 'mousemove', 'wheel'];
     events.forEach(evt =>
-      window.addEventListener(evt, startOnInteract, { capture: true, passive: true })
+      window.addEventListener(evt, handleFirstInteract, { capture: true, passive: true })
     );
 
     // Defensive: keep it playing always
