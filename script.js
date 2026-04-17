@@ -130,28 +130,53 @@
     requestAnimationFrame(draw);
   }
 
-  /* ---------- Locked auto-play music ----------
-     Strategy:
-       1. Audio element has `autoplay muted` so the browser ALWAYS starts it
-          silently the moment the page loads (muted autoplay is universally
-          allowed under every browser's autoplay policy).
-       2. The very first time the user interacts with the page (mousemove,
-          scroll, click, key, touch, wheel) we unmute it and ramp the volume
-          up smoothly. To them it feels like the song started right away.
-       3. Defensive resume: if anything pauses it, we restart. */
+  /* ---------- Music: muted-autoplay + unmute on first interact + manual toggle ----------
+     - Audio element has `autoplay muted` so the browser always starts it silently.
+     - The very first user interaction (mousemove / scroll / click / key / touch /
+       wheel) unmutes it with a smooth fade-in.
+     - The floating button lets the user pause / resume at any time. When the
+       user pauses manually we stop trying to auto-resume so their choice sticks. */
   function initMusic() {
     const audio = $('#bgMusic');
+    const btn   = $('#musicBtn');
+    const icon  = $('#musicIcon');
+    const label = $('#musicLabel');
     if (!audio) return;
 
+    const TARGET_VOL = 0.55;
+    const ICON_PLAY  = '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+    const ICON_PAUSE = '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>';
+
     audio.loop = true;
-    audio.volume = 0.55;
-    audio.muted = true; // ensure muted before first play
+    audio.volume = TARGET_VOL;
+    audio.muted = true;
+
+    let userPaused = false;
+    let unmuted = false;
 
     audio.addEventListener('error', () => {
-      console.warn('[music] Failed to load audio source. Make sure happy_anniversary.mp3 is next to index.html.');
+      console.warn('[music] Failed to load audio. Ensure happy_anniversary.mp3 is next to index.html.');
     });
 
+    const setUI = (playing) => {
+      if (!btn) return;
+      if (playing) {
+        btn.classList.add('is-playing');
+        btn.setAttribute('aria-label', 'Pause music');
+        btn.title = 'Pause music';
+        if (icon)  icon.innerHTML  = ICON_PAUSE;
+        if (label) label.textContent = 'Pause';
+      } else {
+        btn.classList.remove('is-playing');
+        btn.setAttribute('aria-label', 'Play music');
+        btn.title = 'Play music';
+        if (icon)  icon.innerHTML  = ICON_PLAY;
+        if (label) label.textContent = 'Play';
+      }
+    };
+
     const tryPlay = () => {
+      if (userPaused) return;
       const p = audio.play();
       if (p && typeof p.catch === 'function') {
         p.catch(err => {
@@ -161,17 +186,15 @@
     };
 
     tryPlay();
-    audio.addEventListener('canplay', tryPlay, { once: false });
+    audio.addEventListener('canplay',    tryPlay);
     audio.addEventListener('loadeddata', tryPlay, { once: true });
 
-    let unmuted = false;
-    const fadeIn = (target = 0.55, ms = 1200) => {
-      audio.muted = false;
-      audio.volume = 0;
+    const fadeTo = (target, ms = 800) => {
       const start = performance.now();
-      const step = (now) => {
+      const from  = audio.volume;
+      const step  = (now) => {
         const t = Math.min(1, (now - start) / ms);
-        audio.volume = Math.min(target, t * target);
+        audio.volume = from + (target - from) * t;
         if (t < 1) requestAnimationFrame(step);
       };
       requestAnimationFrame(step);
@@ -180,8 +203,10 @@
     const handleFirstInteract = () => {
       if (unmuted) return;
       unmuted = true;
+      audio.muted = false;
+      audio.volume = 0;
       tryPlay();
-      fadeIn(0.55, 1200);
+      fadeTo(TARGET_VOL, 1200);
       events.forEach(evt => window.removeEventListener(evt, handleFirstInteract, true));
     };
     const events = ['pointerdown', 'click', 'touchstart', 'keydown', 'scroll', 'mousemove', 'wheel'];
@@ -189,11 +214,28 @@
       window.addEventListener(evt, handleFirstInteract, { capture: true, passive: true })
     );
 
-    // Defensive: keep it playing always
-    audio.addEventListener('pause', () => {
-      setTimeout(() => { if (audio.paused) tryPlay(); }, 200);
-    });
-    audio.addEventListener('ended', tryPlay);
+    if (btn) {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (audio.paused) {
+          userPaused = false;
+          if (audio.muted) { audio.muted = false; audio.volume = 0; }
+          const p = audio.play();
+          if (p && p.then) p.then(() => fadeTo(TARGET_VOL, 500)).catch(() => {});
+          else fadeTo(TARGET_VOL, 500);
+        } else {
+          userPaused = true;
+          fadeTo(0, 250);
+          setTimeout(() => audio.pause(), 280);
+        }
+      });
+    }
+
+    audio.addEventListener('play',  () => setUI(true));
+    audio.addEventListener('pause', () => setUI(false));
+    audio.addEventListener('ended', () => { if (!userPaused) tryPlay(); });
+
+    setUI(!audio.paused);
   }
 
   /* ---------- QR Code generation ---------- */

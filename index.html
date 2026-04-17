@@ -40,12 +40,27 @@
   <!-- ============== SPARKLES LAYER ============== -->
   <canvas id="sparkleCanvas" class="sparkle-canvas" aria-hidden="true"></canvas>
 
-  <!-- ============== BACKGROUND MUSIC (auto-play, looped, locked) ==============
-       Starts MUTED so browsers always allow autoplay; the script unmutes on
-       the very first user interaction (mousemove / scroll / click / key / touch). -->
+  <!-- ============== BACKGROUND MUSIC ==============
+       Starts MUTED so browsers always allow autoplay, then unmutes on the
+       first user interaction. The floating button lets the user pause/resume. -->
   <audio id="bgMusic" loop autoplay muted preload="auto" playsinline>
     <source src="happy_anniversary.mp3" type="audio/mpeg" />
   </audio>
+
+  <!-- ============== MUSIC TOGGLE BUTTON ============== -->
+  <button class="music-btn is-playing" id="musicBtn" aria-label="Pause music" title="Pause music">
+    <span class="music-btn__icon" id="musicIcon" aria-hidden="true">
+      <!-- pause icon (default since we autoplay) -->
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+        <rect x="6" y="5" width="4" height="14" rx="1"/>
+        <rect x="14" y="5" width="4" height="14" rx="1"/>
+      </svg>
+    </span>
+    <span class="music-btn__label" id="musicLabel">Pause</span>
+    <span class="music-btn__waves" aria-hidden="true">
+      <span></span><span></span><span></span>
+    </span>
+  </button>
 
   <!-- ============== NAV ============== -->
   <nav class="nav" id="nav">

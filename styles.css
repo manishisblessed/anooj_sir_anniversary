@@ -135,13 +135,67 @@ body {
 }
 
 /* ============================================
-   BACKGROUND AUDIO (no UI - locked autoplay)
+   BACKGROUND AUDIO + FLOATING TOGGLE
    ============================================ */
 #bgMusic {
   position: absolute;
   width: 0; height: 0;
   opacity: 0;
   pointer-events: none;
+}
+
+.music-btn {
+  position: fixed;
+  right: 22px; bottom: 22px;
+  z-index: 50;
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 12px 18px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.07), rgba(255,255,255,0.02));
+  border: 1px solid var(--border-glass-strong);
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  color: var(--text);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.45), 0 0 0 1px rgba(255, 215, 140, 0.06) inset;
+  transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease), border-color 0.3s var(--ease);
+  font-size: 13px; font-weight: 500; letter-spacing: 1px;
+}
+.music-btn:hover {
+  transform: translateY(-2px);
+  border-color: var(--gold);
+  box-shadow: 0 14px 40px rgba(0,0,0,0.55), 0 0 24px var(--gold-glow);
+}
+.music-btn:active { transform: translateY(0); }
+
+.music-btn__icon {
+  display: inline-flex;
+  align-items: center; justify-content: center;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold-2), var(--pink));
+  color: #2a1a0a;
+  flex-shrink: 0;
+}
+
+.music-btn__waves { display: none; gap: 3px; align-items: end; height: 12px; }
+.music-btn__waves span {
+  display: block; width: 3px; height: 100%;
+  background: linear-gradient(var(--gold), var(--pink-2));
+  border-radius: 3px;
+  animation: musicWave 0.9s ease-in-out infinite;
+}
+.music-btn__waves span:nth-child(2) { animation-delay: 0.15s; }
+.music-btn__waves span:nth-child(3) { animation-delay: 0.3s; }
+.music-btn.is-playing .music-btn__waves { display: inline-flex; }
+@keyframes musicWave {
+  0%, 100% { transform: scaleY(0.35); }
+  50%      { transform: scaleY(1); }
+}
+
+@media (max-width: 600px) {
+  .music-btn__label { display: none; }
+  .music-btn { padding: 10px 12px; right: 14px; bottom: 14px; gap: 8px; }
+  .music-btn__waves { height: 10px; }
 }
 
 /* ============================================
