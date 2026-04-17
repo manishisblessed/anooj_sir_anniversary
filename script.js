@@ -232,10 +232,12 @@
     }
 
     audio.addEventListener('play',  () => setUI(true));
-    audio.addEventListener('pause', () => setUI(false));
+    audio.addEventListener('pause', () => { if (userPaused) setUI(false); });
     audio.addEventListener('ended', () => { if (!userPaused) tryPlay(); });
 
-    setUI(!audio.paused);
+    // Default to "Pause" UI on load, because we're auto-playing the song.
+    // The button only flips to "Play" when the user explicitly pauses it.
+    setUI(true);
   }
 
   /* ---------- QR Code generation ---------- */
