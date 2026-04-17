@@ -130,12 +130,17 @@
     requestAnimationFrame(draw);
   }
 
-  /* ---------- Music: muted-autoplay + unmute on first interact + manual toggle ----------
-     - Audio element has `autoplay muted` so the browser always starts it silently.
-     - The very first user interaction (mousemove / scroll / click / key / touch /
-       wheel) unmutes it with a smooth fade-in.
-     - The floating button lets the user pause / resume at any time. When the
-       user pauses manually we stop trying to auto-resume so their choice sticks. */
+  /* ---------- Music: bulletproof autoplay + manual toggle ----------
+     Strategy that actually works across Chrome/Edge/Firefox/Safari:
+       1. Try a SILENT (muted) autoplay immediately. This is universally
+          allowed and gets the audio buffer warm.
+       2. The first REAL user gesture (click / pointerdown / keydown /
+          touchstart) unmutes the song with a smooth fade-in. Browsers
+          require a real gesture for audible playback — scroll & mousemove
+          DO NOT qualify.
+       3. The floating button is the most obvious gesture target: it pulses
+          gently until the song is actually audible, and clicking it always
+          starts (or pauses) the song. */
   function initMusic() {
     const audio = $('#bgMusic');
     const btn   = $('#musicBtn');
@@ -143,25 +148,31 @@
     const label = $('#musicLabel');
     if (!audio) return;
 
-    const TARGET_VOL = 0.55;
+    const TARGET_VOL = 0.6;
     const ICON_PLAY  = '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
     const ICON_PAUSE = '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>';
+
+    const log = (...args) => console.log('%c[music]', 'color:#e9c87a', ...args);
 
     audio.loop = true;
     audio.volume = TARGET_VOL;
     audio.muted = true;
 
     let userPaused = false;
-    let unmuted = false;
+    let audible   = false;
 
     audio.addEventListener('error', () => {
-      console.warn('[music] Failed to load audio. Ensure happy_anniversary.mp3 is next to index.html.');
+      console.error('[music] Failed to load audio.', audio.error);
     });
+    audio.addEventListener('loadeddata',     () => log('audio loaded'));
+    audio.addEventListener('canplaythrough', () => log('audio can play through'));
+    audio.addEventListener('play',           () => log('playing (muted=' + audio.muted + ', vol=' + audio.volume + ')'));
 
     const setUI = (playing) => {
       if (!btn) return;
       if (playing) {
         btn.classList.add('is-playing');
+        btn.classList.remove('needs-tap');
         btn.setAttribute('aria-label', 'Pause music');
         btn.title = 'Pause music';
         if (icon)  icon.innerHTML  = ICON_PAUSE;
@@ -175,68 +186,87 @@
       }
     };
 
-    const tryPlay = () => {
-      if (userPaused) return;
-      const p = audio.play();
-      if (p && typeof p.catch === 'function') {
-        p.catch(err => {
-          if (err && err.name !== 'NotAllowedError') console.warn('[music]', err);
-        });
-      }
-    };
-
-    tryPlay();
-    audio.addEventListener('canplay',    tryPlay);
-    audio.addEventListener('loadeddata', tryPlay, { once: true });
-
     const fadeTo = (target, ms = 800) => {
       const start = performance.now();
       const from  = audio.volume;
       const step  = (now) => {
         const t = Math.min(1, (now - start) / ms);
-        audio.volume = from + (target - from) * t;
+        audio.volume = Math.max(0, Math.min(1, from + (target - from) * t));
         if (t < 1) requestAnimationFrame(step);
       };
       requestAnimationFrame(step);
     };
 
-    const handleFirstInteract = () => {
-      if (unmuted) return;
-      unmuted = true;
+    const tryPlaySilent = () => {
+      if (userPaused) return;
+      audio.muted = true;
+      const p = audio.play();
+      if (p && p.catch) p.catch(err => log('silent play blocked:', err.name));
+    };
+
+    const goAudible = () => {
+      if (audible || userPaused) return;
+      audible = true;
       audio.muted = false;
       audio.volume = 0;
-      tryPlay();
-      fadeTo(TARGET_VOL, 1200);
-      events.forEach(evt => window.removeEventListener(evt, handleFirstInteract, true));
+      const p = audio.play();
+      const onPlaying = () => {
+        log('audible playback started');
+        fadeTo(TARGET_VOL, 1200);
+        setUI(true);
+      };
+      if (p && p.then) p.then(onPlaying).catch(err => {
+        console.warn('[music] audible play failed:', err && err.name);
+        audible = false;
+        if (btn) btn.classList.add('needs-tap');
+      });
+      else onPlaying();
     };
-    const events = ['pointerdown', 'click', 'touchstart', 'keydown', 'scroll', 'mousemove', 'wheel'];
-    events.forEach(evt =>
-      window.addEventListener(evt, handleFirstInteract, { capture: true, passive: true })
+
+    tryPlaySilent();
+    audio.addEventListener('canplay',    tryPlaySilent);
+    audio.addEventListener('loadeddata', tryPlaySilent, { once: true });
+
+    // Real user gestures only — these are the ones browsers count
+    // as "user activation" for unmuting / autoplay-with-sound.
+    const gestureEvents = ['pointerdown', 'click', 'touchstart', 'keydown'];
+    const onFirstGesture = () => {
+      goAudible();
+      if (audible) {
+        gestureEvents.forEach(evt => window.removeEventListener(evt, onFirstGesture, true));
+      }
+    };
+    gestureEvents.forEach(evt =>
+      window.addEventListener(evt, onFirstGesture, { capture: true, passive: true })
     );
 
     if (btn) {
+      // Subtle pulsing glow until song actually becomes audible
+      btn.classList.add('needs-tap');
+
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
-        if (audio.paused) {
+        if (audio.paused || audio.muted) {
           userPaused = false;
-          if (audio.muted) { audio.muted = false; audio.volume = 0; }
+          audio.muted = false;
+          if (audio.volume < 0.05) audio.volume = 0;
           const p = audio.play();
-          if (p && p.then) p.then(() => fadeTo(TARGET_VOL, 500)).catch(() => {});
-          else fadeTo(TARGET_VOL, 500);
+          const after = () => { audible = true; fadeTo(TARGET_VOL, 500); setUI(true); btn.classList.remove('needs-tap'); };
+          if (p && p.then) p.then(after).catch(err => console.warn('[music] play failed:', err));
+          else after();
         } else {
           userPaused = true;
           fadeTo(0, 250);
-          setTimeout(() => audio.pause(), 280);
+          setTimeout(() => { audio.pause(); setUI(false); }, 280);
         }
       });
     }
 
-    audio.addEventListener('play',  () => setUI(true));
     audio.addEventListener('pause', () => { if (userPaused) setUI(false); });
-    audio.addEventListener('ended', () => { if (!userPaused) tryPlay(); });
+    audio.addEventListener('ended', () => { if (!userPaused) audio.play().catch(() => {}); });
 
-    // Default to "Pause" UI on load, because we're auto-playing the song.
-    // The button only flips to "Play" when the user explicitly pauses it.
+    // Default to "Pause" UI since we're trying to play. The pulsing glow
+    // tells the user to tap once if they don't hear anything.
     setUI(true);
   }
 
